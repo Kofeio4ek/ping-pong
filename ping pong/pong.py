@@ -28,14 +28,27 @@ class Player(GameSprite):
         self.key_down = key_down
     def update(self):
         keys = key.get_pressed()
-        if keys[self.key_up]:
-            self.rect.y -= self.speed
-        if keys[self.key_down]:
+        if keys[self.key_up] and self.rect.y > 5:
+            self.rect.y -= self.speed 
+        if keys[self.key_down] and self.rect.y < 395:
             self.rect.y += self.speed
 
-platform_1 = Player('platform.png', 30, 430, 20, 100)
-platform_2 = Player('platform.png', 670, 430, 20, 100, 5, K_UP, K_DOWN)
+platform_1 = Player('platform.png', 30, 400, 20, 100)
+platform_2 = Player('platform.png', 670, 400, 20, 100, 5, K_UP, K_DOWN)
+ball = Player('ping.png', 400, 200, 50, 49, 4,)
 
+font.init()
+font = font.Font(None, 40)
+
+win_reset = font.render(
+    'platform_1-WIN', True, (0,250,0)
+)
+lost_reset = font.render(
+    'platform_2-WIN', True, (0,250,0)
+)
+speed_y = 3
+speed_x = 3
+finish = False 
 run = True
 while run:
     window.fill(bc)
@@ -43,9 +56,28 @@ while run:
         if e.type == QUIT:
             run = False
 
+    if finish != True:
+        window.fill(bc)
+        platform_1.update()
+        platform_2.update()
+        ball.rect.x += speed_x
+        ball.rect.y += speed_y
+
+    if sprite.collide_rect(ball, platform_1) or sprite.collide_rect(ball, platform_2):
+        speed_x *= -1
+        speed_y *= 1 
+    if ball.rect.y > 500-50 or ball.rect.y < 0:
+        speed_y *= -1
+    if ball.rect.x > 650:
+        finish = True
+        window.blit(win_reset, (200, 200))
+    if ball.rect.x < 0:
+        finish = True
+        window.blit(lost_reset, (200, 200))
     platform_1.update()
     platform_1.reset()
     platform_2.update()
     platform_2.reset()
+    ball.reset()
     display.update()
     clock.tick(FPS)
